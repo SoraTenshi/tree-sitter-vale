@@ -647,8 +647,9 @@ module.exports = grammar({
         digits,
       ));
     },
-    string_literal: ($) => $._string_literal,
-    escape_sequence: (_) =>
+    string_literal: ($) => choice($._string_literal, $._long_string_literal),
+    escape_sequence: ($) => choice($._escape_sequence, $._string_interpolation),
+    _escape_sequence: (_) =>
       token.immediate(
         seq(
           "\\",
@@ -660,15 +661,29 @@ module.exports = grammar({
           ),
         ),
       ),
+    _string_interpolation: ($) =>  seq("{", $._expr, "}"),
     _string_literal: ($) =>
       seq(
         '"',
-        repeat(choice(
-          token.immediate(prec(1, repeat1(/[^\\"\n]/))),
-          $.escape_sequence,
-        )),
+        repeat(
+          choice(
+            token.immediate(prec(1, repeat1(/[^\\"\n\r\{\}]/))),
+            $.escape_sequence,
+          ),
+        ),
         '"',
       ),
+    _long_string_literal: ($) => prec.left(
+      seq(
+        `"""`,
+          repeat(
+            choice(
+              token.immediate(prec(1, repeat1(/[^\\\{\}]/))),
+              $.escape_sequence,
+            ),
+          ),
+        `"""`,
+      )),
     _type_identifier: ($) => alias($.identifier, $.type_identifier),
     _path: ($) => choice($.identifier, $.scoped_identifier),
     identifier: (_) => /(\p{XID_Start}|_)\p{XID_Continue}*/,

@@ -2351,10 +2351,32 @@
       }
     },
     "string_literal": {
-      "type": "SYMBOL",
-      "name": "_string_literal"
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_string_literal"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_long_string_literal"
+        }
+      ]
     },
     "escape_sequence": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "_escape_sequence"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_string_interpolation"
+        }
+      ]
+    },
+    "_escape_sequence": {
       "type": "IMMEDIATE_TOKEN",
       "content": {
         "type": "SEQ",
@@ -2387,6 +2409,23 @@
         ]
       }
     },
+    "_string_interpolation": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expr"
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
+    },
     "_string_literal": {
       "type": "SEQ",
       "members": [
@@ -2408,7 +2447,7 @@
                     "type": "REPEAT1",
                     "content": {
                       "type": "PATTERN",
-                      "value": "[^\\\\\"\\n]"
+                      "value": "[^\\\\\"\\n\\r\\{\\}]"
                     }
                   }
                 }
@@ -2425,6 +2464,49 @@
           "value": "\""
         }
       ]
+    },
+    "_long_string_literal": {
+      "type": "PREC_LEFT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "STRING",
+            "value": "\"\"\""
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "CHOICE",
+              "members": [
+                {
+                  "type": "IMMEDIATE_TOKEN",
+                  "content": {
+                    "type": "PREC",
+                    "value": 1,
+                    "content": {
+                      "type": "REPEAT1",
+                      "content": {
+                        "type": "PATTERN",
+                        "value": "[^\\\\\\{\\}]"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "SYMBOL",
+                  "name": "escape_sequence"
+                }
+              ]
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "\"\"\""
+          }
+        ]
+      }
     },
     "_type_identifier": {
       "type": "ALIAS",

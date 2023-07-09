@@ -75,16 +75,41 @@ exported func main() str {
         (type
           (type_identifier)))
       (block
-        (expr_statement
-          (return_expr
-            (literal
-              (string_literal)
-              (escape_sequence
-                (call_expr
-                  (identifier)
-                  (parameters
-                    (numeric_literal))))
-              (string_literal))))))))
+        (return_expr
+          (literal
+            (string_literal)
+            (escape_sequence
+              (call_expr
+                (identifier)
+                (parameters
+                  (numeric_literal))))
+            (string_literal))))))))
+
+========================================================================
+multi line string
+========================================================================
+
+exported func main() str {
+    return """hello
+"from"
+"the"
+other
+side""";
+}
+
+------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (func_header
+      (identifier)
+        (parameters)
+        (type
+          (type_identifier)))
+      (block
+        (return_expr
+          (literal
+            (string_literal)))))))
 
 ========================================================================
 pure function
